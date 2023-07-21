@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Changed{% endblock %}
+{% block navbar %}
+{% with active='home' ,logged_in=true %}
+{% include 'navbar.html' %}
+{% endwith %}
+{% endblock %}
+{% block content %}
+<h1>Welcome to employee portal</h1>
+<h1>Cloud Database is allocated to you</h1>
+{% endblock %}

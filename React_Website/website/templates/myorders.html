@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Changed{% endblock %}
+{% block navbar %}
+{% with active='my_orders', logged_in=true %}
+{% include 'navbar.html' %}
+{% endwith %}
+{% endblock %}
+{% block content %}
+<h3 align="center">your orders</h3>
+<div align="center" class="container m-3 ">
+    {% for order in orders %}
+    <div align="center" class="container border border-dark w-50 m-3 ">
+        <p>Date of order : {{ order['date'] }}</p>
+        {% for x in order['orders'] %}
+        <p>{{order['orders'][x]['name']}}: {{order['orders'][x]['quantity']}}</p>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

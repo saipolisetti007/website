@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Changed{% endblock %}
+{% block navbar %}
+{% with active='home' ,logged_in=Logged_in %}
+{% include 'navbar.html' %}
+{% endwith %}
+{% endblock %}
+{% block content %}
+<div class="container m-4 p-2">
+    <h1 align="center">PRODUCT'S</h1>
+    <div class="row" id="{{ plist| length}}">
+        {% for i,product in plist.items() %}
+        <div class="card col-sm-3 mx-4 my-2" style="width: 18rem;">
+            <img src="{{ url_for('static',filename=product['img']) }}"
+                width="75px" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 id="{{'h'+(i|string())}}" class="card-title">{{
+                    product['name'] }}</h5>
+                <p id="{{'t'+(i|string())}}" class="card-text">{{
+                    product['title'][0:50]+"..." }}</p>
+            </div>
+            <div class="d-flex justify-content-center">
+                <span id="{{'m'+(i|string())}}" onclick="decrease('{{i }}')"
+                    class="btn m-1 btn-sm btn-primary">&minus;</span>
+                <p id="{{'q'+(i|string())}}" class="m-2">0</p>
+                <span id="{{'p'+(i|string())}}" onclick="increase('{{i }}')"
+                    class=" m-1 btn btn-sm btn-primary">&plus;</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="d-flex justify-content-center">
+        <button class="btn btn-primary mx-3 my-2 " onclick="Add_to_cart()" >
+            Add to cart
+        </button>
+    </div>
+</div>
+<div align="center"
+    class="container justify-content-center border my-2 rounded border-dark "
+    style="width:50%">
+    <h3 align="center">Your cart </h3>
+    <div align="center" id="cart-items">
+        <p id="empty-cart">Your cart is empty</p>
+    </div>
+    <div class="modal fade" id="modalContactForm" tabindex="-1" role="dialog"
+        aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Enter your
+                        details</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body mx-3">
+                    <form action="/place_order" id="place_order_form"
+                        method="post">
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Your Name</label>
+                            <input type="text" class="form-control" id="name"
+                                name="name" aria-describedby="emailHelp">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Mobile</label>
+                            <input type="text" class="form-control" id="mobile"
+                                name="mobile">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Company</label>
+                            <input type="text" class="form-control" id="company"
+                                name="company">
+                        </div>
+                        <div class="form-group form-check"
+                            style="visibility:none;">
+                            <input style="display:none" type="hidden"
+                                id="orders" name="orders">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn btn-primary" onclick="PlaceOrder()">Place
+                        Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-success mx-3 my-2" data-toggle="modal"
+        data-target="#modalContactForm">
+        Place order
+    </button>
+</div>
+<script type="text/javascript">
+    var products = JSON.parse('{{plist|tojson|safe}}');
+    const host=window.location.protocol+'//'+window.location.host;
+    cart = {}
+    for (key in products) {
+        cart[key] = {
+            "name": products[key].name,
+            quantity: 0
+        }
+    }
+    
+    function increase(id) {
+        var quantity = document.getElementById('q' + id)
+        let x = parseInt(quantity.innerText)
+        if (x < 10) {
+            quantity.innerText = (x + 1)
+        }
+    }
+    function decrease(id) {
+        var quantity = document.getElementById('q' + id)
+        let x = parseInt(quantity.innerText)
+        if (x > 0) {
+            quantity.innerHTML = (x - 1)
+        }
+    }
+    function Add_to_cart() {
+        for (key in products) {
+            var quantity = document.getElementById('q' + key)
+            cart[key].quantity += parseInt(quantity.innerText)
+            quantity.innerText = '0'
+        }
+        set_cart()
+        Update_cart()
+    }
+    async function Update_cart()
+    {
+        let response = await fetch(`${host}/auth/update_cart`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'orders':JSON.stringify(cart)
+            }
+        });
+        var data=await response.json()
+        console.log(data)
+        if(data.Logged_in==false)
+        {
+            alert("You are not logged in!!")
+            for(x in products)
+            {
+                cart[x].quantity=0
+            }
+            console.log(cart)
+            set_cart()
+        }
+    }
+    async function get_cart()
+    {
+        let response = await fetch(`${host}/auth/get_cart`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        var data=await response.json()
+        if(data.success)
+        {
+            cart=JSON.parse(data['orders'])
+            set_cart()
+        }
+    }
+    function set_cart() {
+        let items = document.getElementById('cart-items')
+        let list = []
+        for (x in cart) {
+            if (cart[x].quantity == 0) continue;
+            let element = document.createElement('p')
+            var text_node = document.createTextNode(`${cart[x].name}:${cart[x].quantity}`)
+            element.appendChild(text_node)
+            list[x - 1] = element
+        }
+        if (list.length != 0) {
+            var first = items.firstElementChild;
+            while (first) {
+                first.remove();
+                first = items.firstElementChild;
+            }
+            for (i in list) {
+                items.appendChild(list[i])
+            }
+        }
+    }
+    function PlaceOrder() {
+        const form = document.getElementById('place_order_form')
+        const orders = document.getElementById('orders')
+        order_dict = {}
+        for (x in cart) {
+            if (cart[x].quantity != 0) {
+                order_dict[x] = cart[x]
+            }
+        }
+
+        orders.setAttribute('value', JSON.stringify(order_dict))
+        form.appendChild(orders)
+        form.submit()
+    }
+    get_cart()
+</script>
+{% endblock %}

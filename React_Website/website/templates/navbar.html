@@ -1,0 +1,94 @@
+<nav class="navbar navbar-dark navbar-expand-lg bg-blue">
+  <div class="container-fluid d-flex">
+    <div style="margin-left:20px;margin-top:10px">
+      <img width="50px" height="50px" style="border-radius:20px;padding:5px;"
+        src="{{ url_for('static',filename='LOGO.jpg') }}">
+      <a class="navbar-brand" href="# "><b>MY COMPANY</b></a>
+    </div>
+
+    <div align="center" class="collapse navbar-collapse"
+      id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if active=='home' %}
+              active
+              {% endif %}" aria-current="page" href="/">Home</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {% if active=='my_orders' %}
+              active
+              {% endif %}" aria-current="page" href="/myorders"> orders </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link  {% if active=='about' %}
+              active
+              {% endif %}" href="/about">About</a>
+        </li>
+    </div>
+    <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog"
+      aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h4 class="modal-title w-100 font-weight-bold">Log in</h4>
+            <button type="button" class="close" data-dismiss="modal"
+              aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body mx-3" >
+            <p>Log in as </p>
+             <input type="radio" id="employee" name="user_type" value="HTML">
+             <label for="employee">Employee</label><br>
+             <input type="radio" id="customer" name="user_type" value="CSS">
+             <label for="customer">Customer</label><br>
+             <input type="radio" id="public" name="user_type"
+             value="JavaScript">
+             <label for="public">Public</label>
+          </div>
+          <div class="modal-footer d-flex justify-content-center">
+            <button onclick="login()" class="btn btn-primary">Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if logged_in==false %}
+    <div id="inbtns">
+      <a href="/auth/signup">
+        <button class=" mx-1 btn btn-sm signbutton">
+          sign up
+        </button>
+      </a>
+
+      <button class="mx-1 btn btn-sm signbutton" data-toggle="modal"
+        data-target="#modalLoginForm">
+        Log in
+      </button>
+
+    </div>
+    {% else %}
+    <div id="outbtns" >
+      <button class=" mx-1 btn btn-sm signbutton" onclick="logout()" >
+        <i class="fa fa-sign-out" aria-hidden="true"></i>
+        logout
+      </button>
+    </div>
+    {% endif %}
+  </div>
+</nav>
+<script>
+  function login()
+  {const host=window.location.protocol+'//'+window.location.host;
+  if(document.getElementById('employee').checked){
+    window.location.replace(`${host}/auth/employee_login`)
+  }
+  else
+  window.location.replace(`${host}/auth/login`)
+}
+function logout()
+{
+    const host=window.location.protocol+'//'+window.location.host;
+    window.location.replace(`${host}/auth/logout`)
+  }
+</script>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Changed{% endblock %}
+{% block navbar %}
+{% with active='about', logged_in=Logged_in %}
+{% include 'navbar.html' %}
+{% endwith %}
+{% endblock %}
+{% block content %}
+<h1>This is the About Page</h1>
+{% endblock %}
